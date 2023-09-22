@@ -1,4 +1,10 @@
-<div class="author">
+
+<% if (message) { %>
+    <script>
+      alert("<%= message %>");
+    </script>
+  <% } %>
+  <div class="author">
     <h1 class="author__heading">Hi, I am Bruno</h1>
     <p class="author__body">Web developer Full Stack PHP and JS</p>
 </div>

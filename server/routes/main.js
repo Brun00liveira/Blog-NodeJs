@@ -12,7 +12,7 @@ router.get('', async (req, res) => {
         //pagination
     let perPage = 5; // Número de postagens por página
     let page = req.query.page || 1; // Página atual (ou 1 se não especificada)
-
+    const message = req.query.message
     // Consulta o banco de dados MongoDB para buscar as postagens
     const data = await Post.aggregate([{$sort: {createdAt: -1}}])
     .skip(perPage * page - perPage) // Pula as postagens das páginas anteriores
@@ -32,6 +32,7 @@ router.get('', async (req, res) => {
     res.render('index', {
     locals,
     data,
+    message,
     current: page, // Página atual
     nextPage: hasNextPage ? nextPage : null, // Página seguinte (ou null se não houver próxima)
     currentRoute: '/'
@@ -41,129 +42,7 @@ router.get('', async (req, res) => {
     }
 
 });
-//dashboard
-router.get('/dashboard', async (req, res) => {
-    try{
-        const locals = {
-            title: 'Dashboard',
-            description: 'Simple Blog created with NodeJs, ExpressJs & MongoDB'
-        }
-        const data = await Post.find();
-        res.render('dashboard', {
-            locals,
-            data
-        })
-    }catch(error){
-        console.log(error);
-    }
-})
-//add-post(get)
-router.get('/add-post', async (req, res) => {
-    try {
-      const locals = {
-        title: 'Add Post',
-        description: 'Simple Blog created with NodeJs, Express & MongoDb.'
-      }
-  
-      const data = await Post.find();
-      res.render('add-post', {
-        locals,
-        data
-      });
-  
-    } catch (error) {
-      console.log(error);
-    }
-  
-  });
-//add-post(post)
-router.post('/add-post', async (req, res) => {
-    try {
-      try {
-        const newPost = new Post({
-          title: req.body.title,
-          body: req.body.body
-        });
-  
-        await Post.create(newPost);
-        res.redirect('/dashboard');
-      } catch (error) {
-        console.log(error);
-      }
-  
-    } catch (error) {
-      console.log(error);
-    }
-  });
-//edit(get)
-router.get('/edit-post/:id', async (req, res) => {
-  try {
 
-    const locals = {
-      title: "Edit Post",
-      description: "Free NodeJs User Management System",
-    };
-
-    const data = await Post.findOne({ _id: req.params.id });
-
-    res.render('edit-post', {
-      locals,
-      data
-    })
-
-  } catch (error) {
-    console.log(error);
-  }
-
-});
-//edit(post)
-router.put('/edit-post/:id', async (req, res) => {
-  try {
-
-    await Post.findByIdAndUpdate(req.params.id, {
-      title: req.body.title,
-      body: req.body.body,
-      updatedAt: Date.now()
-    });
-
-    res.redirect('/dashboard');
-
-  } catch (error) {
-    console.log(error);
-  }
-
-});
-
-//postagem
-router.get('/post/:id', async (req, res) => {
-    try{
-        const locals = {
-            title: 'NodeJs Blog',
-            description: 'Simple Blog created with NodeJs, ExpressJs & MongoDB'
-        }
-        let slug = req.params.id;
-        const data = await Post.findById({_id: slug});
-
-        res.render('post', {
-            locals,
-            data,
-            currentRoute: `/post/${slug}`
-        })
-    }catch(error){
-        console.log(error);
-    }
-})
-//delete
-router.delete('/delete-post/:id', async (req, res) => {
-
-  try {
-    await Post.deleteOne( { _id: req.params.id } );
-    res.redirect('/dashboard');
-  } catch (error) {
-    console.log(error);
-  }
-
-});
 //search
 
 router.post('/search', async(req, res) => {
@@ -191,7 +70,24 @@ router.post('/search', async(req, res) => {
         console.log(error)
     }
 })
+router.get('/post/:id', async (req, res) => {
+    try{
+        const locals = {
+            title: 'NodeJs Blog',
+            description: 'Simple Blog created with NodeJs, ExpressJs & MongoDB'
+        }
+        let slug = req.params.id;
+        const data = await Post.findById({_id: slug});
 
+        res.render('post', {
+            locals,
+            data,
+            currentRoute: `/post/${slug}`
+        })
+    }catch(error){
+        console.log(error);
+    }
+})
 // -> teste para ver se conectou com o banco
 // function insertPostData() {
 //     Post.insertMany([
